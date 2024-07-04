@@ -1,0 +1,5 @@
+node_modules/
+.env
+sqitch.conf
+.DS_Store
+dist
