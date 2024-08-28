@@ -9,6 +9,7 @@ CREATE TABLE "user" (
   "last_name" VARCHAR(50) DEFAULT '',
   "first_name" VARCHAR(25) DEFAULT '',
   "password" VARCHAR(255) NOT NULL,
+  "token" VARCHAR(255),
   "created_at" TIMESTAMPTZ DEFAULT now() NOT NULL,
   "updated_at" TIMESTAMPTZ
 );

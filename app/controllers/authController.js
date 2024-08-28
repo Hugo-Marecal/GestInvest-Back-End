@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import users from '../datamappers/user.datamapper.js';
 import auth from '../utils/auth.js';
+import { sendVerifyEmail } from '../utils/sendEmail.js';
 
 const authController = {
   async signup(req, res) {
@@ -19,17 +20,33 @@ const authController = {
     // Verify password, confirmation, pass the regex test and hash the password
     const hashedPassword = await auth.checkPassword(password, confirmation);
 
+    // Create a token with the user email, will expire in 24 hours
+    const verifyEmailToken = jwt.sign({ email }, process.env.JWT_PRIVATE_KEY, { expiresIn: '24h' });
+
     // Create the user in the database
-    const newUser = await users.create({ email, password: hashedPassword });
+    const newUser = await users.create({ email, password: hashedPassword, token: verifyEmailToken });
     if (!newUser) {
-      throw new Error('Erreur lors de la creation de votre portefeuille.');
+      throw new Error("Erreur lors de la creation de l'utilisateur.");
+    }
+
+    // Execute the function to send the email
+    const sendEmail = await sendVerifyEmail(email, verifyEmailToken);
+
+    if (!sendEmail) {
+      throw new Error("Erreur lors de l'envoi de l'email.");
     }
 
     // Create a portfolio for the user
-    await users.createPortfolio(newUser);
+    const createPortfolio = await users.createPortfolio(newUser);
+
+    if (!createPortfolio) {
+      throw new Error('Erreur lors de la creation du portefeuille.');
+    }
 
     // Send a success message
-    res.status(201).json({ successMessage: 'Votre compte a bien été créé, veuillez à présent vous authentifier' });
+    res
+      .status(201)
+      .json({ successMessage: 'Compte créé, confirmer votre email via le lien qui vient de vous être envoyé.' });
   },
 
   async login(req, res) {
