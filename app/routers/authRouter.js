@@ -8,5 +8,6 @@ const router = express.Router();
 // Auth routes
 router.post('/signup', controllerWrapper(authController.signup));
 router.post('/login', controllerWrapper(authController.login));
+router.get('/verify/:token', controllerWrapper(authController.verifyEmail));
 
 export default router;

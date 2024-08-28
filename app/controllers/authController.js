@@ -30,23 +30,15 @@ const authController = {
     }
 
     // Execute the function to send the email
-    const sendEmail = await sendVerifyEmail(email, verifyEmailToken);
-
-    if (!sendEmail) {
-      throw new Error("Erreur lors de l'envoi de l'email.");
-    }
+    await sendVerifyEmail(email, verifyEmailToken);
 
     // Create a portfolio for the user
-    const createPortfolio = await users.createPortfolio(newUser);
-
-    if (!createPortfolio) {
-      throw new Error('Erreur lors de la creation du portefeuille.');
-    }
+    await users.createPortfolio(newUser);
 
     // Send a success message
     res
       .status(201)
-      .json({ successMessage: 'Compte créé, confirmer votre email via le lien qui vient de vous être envoyé.' });
+      .json({ successMessage: 'Compte créé, confirmez votre e-mail via le lien qui vient de vous être envoyé.' });
   },
 
   async login(req, res) {
@@ -60,6 +52,10 @@ const authController = {
       throw new Error('Mauvais couple email / mot de passe');
     }
 
+    if (!user.verified) {
+      throw new Error('Veuillez vérifier votre email');
+    }
+
     // Check if the password is correct
     const passwordMatches = await bcrypt.compare(password, user.password);
     if (!passwordMatches) {
@@ -70,6 +66,49 @@ const authController = {
     const token = jwt.sign({ email, user: user.id }, process.env.JWT_PRIVATE_KEY, { expiresIn: '24h' });
     res.status(201).json({ token });
   },
-};
 
+  async verifyEmail(req, res) {
+    const { token } = req.params;
+
+    if (!token) {
+      throw new Error('Token invalide');
+    }
+
+    const decodedToken = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+
+    if (!decodedToken) {
+      throw new Error('Token invalide');
+    }
+
+    // Verify if the user exists
+    const user = await users.findByEmail(decodedToken.email);
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    // if the user exist and he is not verified, update the user to verified
+    if (user.verified) {
+      res.redirect(
+        'http://localhost:5173/?errorMessage=Email%20déjà%20vérifié,%20veuillez%20maintenant%20vous%20connecter.',
+      );
+      return;
+    }
+
+    const verifyUser = await users.updateVerified(user.id, { verified: true });
+
+    if (!verifyUser) {
+      throw new Error("Erreur lors de la verification de l'email");
+    }
+
+    const deleteToken = await users.deleteToken(user.id);
+    if (deleteToken.rowCount === 0) {
+      throw new Error('Erreur lors de la suppression du token');
+    }
+
+    res.redirect(
+      'http://localhost:5173/?successMessage=Email%20vérifié%20avec%20succès,%20veuillez%20maintenant%20vous%20connecter.',
+    );
+  },
+};
 export default authController;

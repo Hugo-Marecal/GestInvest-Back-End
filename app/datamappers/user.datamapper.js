@@ -33,6 +33,16 @@ const users = {
     return result.rows[0];
   },
 
+  async deleteToken(id) {
+    const result = await dbClient.query('UPDATE "user" SET token = null WHERE id = $1', [id]);
+    return result;
+  },
+
+  async updateVerified(id) {
+    const result = await dbClient.query('UPDATE "user" SET verified = true WHERE id = $1 RETURNING id, email', [id]);
+    return result.rows[0];
+  },
+
   async delete(id) {
     await dbClient.query(
       'UPDATE "user" SET email = null, password = null, first_name = null, last_name = null WHERE id = $1',

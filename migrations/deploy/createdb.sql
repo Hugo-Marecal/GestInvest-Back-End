@@ -10,6 +10,7 @@ CREATE TABLE "user" (
   "first_name" VARCHAR(25) DEFAULT '',
   "password" VARCHAR(255) NOT NULL,
   "token" VARCHAR(255),
+  "verified" BOOLEAN DEFAULT FALSE,
   "created_at" TIMESTAMPTZ DEFAULT now() NOT NULL,
   "updated_at" TIMESTAMPTZ
 );
