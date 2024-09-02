@@ -21,7 +21,7 @@ export const sendVerifyEmail = async (email, token) => {
       from: process.env.FROM_EMAIL,
       to: email,
       subject: 'Verify your email',
-      html: `<a href="http://localhost:5000/api/auth/verify/${token}">Click here to verify your email</a>`,
+      html: `<a href="https://gestinvest-back-39dbe349ad20.herokuapp.com/api/auth/verify/${token}">Click here to verify your email</a>`,
     });
 
     console.log('Email envoyé avec succès à', email);
