@@ -90,7 +90,7 @@ const authController = {
     // if the user exist and he is not verified, update the user to verified
     if (user.verified) {
       res.redirect(
-        'https://gestinvest-front-b04b901a48be.herokuapp.com/?errorMessage=Email%20déjà%20vérifié,%20veuillez%20maintenant%20vous%20connecter.',
+        'https://gest-invest.vercel.app/?errorMessage=Email%20déjà%20vérifié,%20veuillez%20maintenant%20vous%20connecter.',
       );
       return;
     }
@@ -107,7 +107,7 @@ const authController = {
     }
 
     res.redirect(
-      'https://gestinvest-front-b04b901a48be.herokuapp.com/?successMessage=Email%20vérifié%20avec%20succès,%20veuillez%20maintenant%20vous%20connecter.',
+      'https://gest-invest.vercel.app/?successMessage=Email%20vérifié%20avec%20succès,%20veuillez%20maintenant%20vous%20connecter.',
     );
   },
 };
