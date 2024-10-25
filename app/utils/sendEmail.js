@@ -18,7 +18,7 @@ export const sendVerifyEmail = async (email, token) => {
       from: process.env.FROM_EMAIL,
       to: email,
       subject: 'Verify your email',
-      html: `<a href="https://gest-invest.vercel.app/api/auth/verify/${token}">Click here to verify your email</a>`,
+      html: `<a href="https://gest-invest-back-end.vercel.app/api/auth/verify/${token}">Click here to verify your email</a>`,
     });
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
