@@ -5,7 +5,9 @@ import express from 'express';
 import cors from 'cors';
 
 // Import CRON
-import task from './utils/API/CRON.js';
+// import task from './utils/API/CRON.js';
+import cryptoApi from './utils/API/api.crypto.js';
+import stockApi from './utils/API/api.stock.js';
 
 // Import main router of the application
 import router from './routers/index.api.router.js';
@@ -28,11 +30,23 @@ app.use(express.json());
 // Use the express.urlencoded() middleware to parse URL-encoded requests
 app.use(express.urlencoded({ extended: true }));
 
+// Route for execute CRON job in vercel
+app.get('/api/cron', async (req, res) => {
+  try {
+    await cryptoApi.getPriceCrypto(1, 60);
+    await stockApi.getPriceStock(2, 40);
+    res.status(200).send('Cron job exécuté avec succès.');
+  } catch (error) {
+    console.error("Erreur lors de l'exécution du cron job :", error);
+    res.status(500).send("Erreur lors de l'exécution du cron job.");
+  }
+});
+
 // Use the main router to manage all the routes of the application
 app.use(router);
 
 // Trigger the CRON task
-task.start();
+// task.start();
 
 // Export the app instance
 export default app;
